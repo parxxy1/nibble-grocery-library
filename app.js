@@ -5,7 +5,9 @@ const ICON = {
   archive: '<svg viewBox="0 0 24 24"><path d="M4 7.5h16v12H4zM3 4.5h18v3H3zM9 11.5h6"/></svg>',
   arrowRight: '<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
   x: '<svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>',
-  check: '<svg viewBox="0 0 24 24"><path d="m5 12 4.5 4.5L19 7"/></svg>'
+  check: '<svg viewBox="0 0 24 24"><path d="m5 12 4.5 4.5L19 7"/></svg>',
+  trash: '<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13M10 11v6M14 11v6"/></svg>',
+  note: '<svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M9.5 12.5h5M9.5 16h5"/></svg>'
 };
 
 let simpleItems = [];
@@ -65,23 +67,30 @@ function splitSimpleEntries(value) {
   return String(value || '')
     .replace(/[\u2022•]/g, ',')
     .split(/[,;\n]+/)
-    .map((entry) => entry.replace(/^\s*(?:and|also)\s+/i, '').replace(/\s+/g, ' ').trim())
+    .map((entry) => entry
+      .replace(/^\s*(?:and|also|um+|uh+)\s+/i, '')
+      .replace(/\s+(?:um+|uh+)\s+/gi, ' ')
+      .replace(/\s+/g, ' ')
+      .trim())
     .filter(Boolean);
 }
 
 function renderSimpleList() {
   const list = $('#simpleList');
   const empty = $('#simpleListEmpty');
+  const hint = $('#simpleListHint');
   if (!list || !empty) return;
   list.innerHTML = simpleItems.map((entry, index) => `
-    <li>
-      <span class="simple-item-label">${escapeHtml(entry)}</span>
-      <div class="simple-item-actions">
-        <button class="simple-note-add" type="button" data-note-index="${index}" aria-label="Add ${escapeHtml(entry)} to Apple Notes"><span data-icon="plus"></span></button>
-        <button class="simple-remove" type="button" data-simple-index="${index}" aria-label="Remove ${escapeHtml(entry)}">×</button>
+    <li class="simple-item" data-index="${index}">
+      <div class="simple-item-swipe-bg swipe-bg-delete"><span data-icon="trash"></span></div>
+      <div class="simple-item-swipe-bg swipe-bg-done"><span data-icon="check"></span></div>
+      <div class="simple-item-row">
+        <span class="simple-item-label" data-role="label">${escapeHtml(entry)}</span>
+        <button class="simple-note-add" type="button" data-note-index="${index}" aria-label="Send ${escapeHtml(entry)} to Apple Notes"><span data-icon="note"></span></button>
       </div>
     </li>`).join('');
   empty.hidden = simpleItems.length > 0;
+  if (hint) hint.hidden = simpleItems.length === 0;
   renderIcons();
 }
 
@@ -218,7 +227,7 @@ function startNativeVoiceCapture(stream) {
     let interim = '';
     for (let index = event.resultIndex; index < event.results.length; index += 1) {
       const text = event.results[index][0]?.transcript || '';
-      if (event.results[index].isFinal) voiceFinalText += `${text} `;
+      if (event.results[index].isFinal) voiceFinalText += `${text}, `;
       else interim += text;
     }
     setVoiceStatus(interim ? `Hearing: ${interim}` : 'Listening… say your items, then tap Stop & transcribe.');
@@ -347,6 +356,140 @@ function clearSimpleList() {
   setVoiceStatus('List cleared.');
 }
 
+function removeSimpleItemAt(index, message) {
+  if (!simpleItems[index]) return;
+  simpleItems.splice(index, 1);
+  saveSimpleList();
+  renderSimpleList();
+  if (message) setVoiceStatus(message);
+}
+
+function beginEditSimpleItem(li) {
+  if (!li || li.classList.contains('editing')) return;
+  const index = Number(li.dataset.index);
+  const label = li.querySelector('[data-role="label"]');
+  if (!label) return;
+  const original = simpleItems[index];
+  li.classList.add('editing');
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'simple-item-edit';
+  input.value = original;
+  input.setAttribute('aria-label', `Edit ${original}`);
+  label.replaceWith(input);
+  input.focus();
+  input.setSelectionRange(input.value.length, input.value.length);
+
+  let settled = false;
+  const commit = () => {
+    if (settled) return;
+    settled = true;
+    const value = input.value.trim();
+    if (!value) removeSimpleItemAt(index, 'Item removed.');
+    else if (value !== original) {
+      simpleItems[index] = value;
+      saveSimpleList();
+      renderSimpleList();
+    } else {
+      renderSimpleList();
+    }
+  };
+  const cancel = () => {
+    if (settled) return;
+    settled = true;
+    renderSimpleList();
+  };
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') { event.preventDefault(); input.blur(); }
+    else if (event.key === 'Escape') { event.preventDefault(); cancel(); }
+  });
+}
+
+const SWIPE_COMMIT_PX = 84;
+const SWIPE_MAX_PX = 132;
+let swipeState = null;
+
+function resetSwipeRow(row) {
+  if (!row) return;
+  row.style.transition = 'transform .18s ease';
+  row.style.transform = 'translateX(0px)';
+}
+
+function onSimplePointerDown(event) {
+  if (event.button !== undefined && event.button !== 0) return;
+  const li = event.target.closest('.simple-item');
+  if (!li || li.classList.contains('editing')) return;
+  if (event.target.closest('.simple-note-add')) return;
+  const row = li.querySelector('.simple-item-row');
+  if (!row) return;
+  swipeState = {
+    li, row,
+    index: Number(li.dataset.index),
+    pointerId: event.pointerId,
+    startX: event.clientX,
+    startY: event.clientY,
+    dx: 0,
+    locked: false,
+    captured: false
+  };
+}
+
+function onSimplePointerMove(event) {
+  if (!swipeState || event.pointerId !== swipeState.pointerId) return;
+  const dx = event.clientX - swipeState.startX;
+  const dy = event.clientY - swipeState.startY;
+  if (!swipeState.locked) {
+    if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) {
+      swipeState.locked = true;
+      swipeState.row.style.transition = 'none';
+      try { swipeState.li.setPointerCapture(event.pointerId); swipeState.captured = true; } catch { /* pointer capture unsupported */ }
+    } else if (Math.abs(dy) > 8) {
+      swipeState = null;
+      return;
+    } else {
+      return;
+    }
+  }
+  event.preventDefault();
+  swipeState.dx = Math.max(-SWIPE_MAX_PX, Math.min(SWIPE_MAX_PX, dx));
+  swipeState.row.style.transform = `translateX(${swipeState.dx}px)`;
+  swipeState.li.classList.toggle('swipe-right', swipeState.dx > 4);
+  swipeState.li.classList.toggle('swipe-left', swipeState.dx < -4);
+}
+
+function finishSwipe(event) {
+  if (!swipeState || (event && event.pointerId !== swipeState.pointerId)) return;
+  const { li, row, index, dx, locked, captured } = swipeState;
+  if (captured) { try { li.releasePointerCapture(event.pointerId); } catch { /* already released */ } }
+  swipeState = null;
+  if (!locked) return;
+  if (dx >= SWIPE_COMMIT_PX) {
+    const entry = simpleItems[index];
+    row.style.transition = 'transform .16s ease, opacity .16s ease';
+    row.style.transform = 'translateX(140%)';
+    row.style.opacity = '0';
+    setTimeout(() => removeSimpleItemAt(index, entry ? `Removed ${entry}.` : undefined), 150);
+  } else if (dx <= -SWIPE_COMMIT_PX) {
+    const entry = simpleItems[index];
+    li.classList.add('swipe-done');
+    row.style.transition = 'transform .16s ease, opacity .16s ease';
+    row.style.transform = 'translateX(-140%)';
+    row.style.opacity = '0';
+    setTimeout(() => removeSimpleItemAt(index, entry ? `Checked off ${entry}.` : undefined), 150);
+  } else {
+    resetSwipeRow(row);
+    li.classList.remove('swipe-right', 'swipe-left');
+  }
+}
+
+function onSimpleListClick(event) {
+  const noteButton = event.target.closest('[data-note-index]');
+  if (noteButton) { addSimpleItemToAppleNotes(Number(noteButton.dataset.noteIndex)); return; }
+  const label = event.target.closest('[data-role="label"]');
+  if (label) beginEditSimpleItem(label.closest('.simple-item'));
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   simpleItems = loadSimpleList();
   appleNotesConfig = loadAppleNotesConfig();
@@ -361,16 +504,12 @@ document.addEventListener('DOMContentLoaded', () => {
     event.preventDefault();
     addSimpleListEntries($('#simpleListInput').value);
   });
-  $('#simpleList').addEventListener('click', (event) => {
-    const noteButton = event.target.closest('[data-note-index]');
-    if (noteButton) return addSimpleItemToAppleNotes(Number(noteButton.dataset.noteIndex));
-    const removeButton = event.target.closest('[data-simple-index]');
-    if (!removeButton) return;
-    const index = Number(removeButton.dataset.simpleIndex);
-    simpleItems.splice(index, 1);
-    saveSimpleList();
-    renderSimpleList();
-  });
+  const simpleList = $('#simpleList');
+  simpleList.addEventListener('click', onSimpleListClick);
+  simpleList.addEventListener('pointerdown', onSimplePointerDown);
+  simpleList.addEventListener('pointermove', onSimplePointerMove);
+  simpleList.addEventListener('pointerup', finishSwipe);
+  simpleList.addEventListener('pointercancel', finishSwipe);
   $('#simpleClearHeaderButton').addEventListener('click', clearSimpleList);
   $('#simpleSettingsButton').addEventListener('click', openAppleNotesSetup);
   $('#closeAppleNotesSetup').addEventListener('click', closeAppleNotesSetup);

@@ -2,8 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#f0f0f0" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Nibble" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <link rel="icon" href="icons/icon-192.png" />
     <title>Nibble</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
@@ -36,6 +43,7 @@
             <div class="simple-list-scroll" id="simpleListScroll">
               <ul class="simple-list" id="simpleList"></ul>
               <div class="simple-list-empty" id="simpleListEmpty"><p>Your grocery list is blank.</p><small>Tap + to add items.</small></div>
+              <p class="simple-list-hint" id="simpleListHint">Tap an item to edit it. Swipe right to delete, swipe left to check it off.</p>
             </div>
           </section>
 
@@ -73,6 +81,6 @@
     </div>
 
     <div class="toast" id="toast" role="status"><span class="toast-icon" data-icon="check"></span><span id="toastMessage"></span></div>
-    <script src="app.js?v=16"></script>
+    <script src="app.js?v=17"></script>
   </body>
 </html>

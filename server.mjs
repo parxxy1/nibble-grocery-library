@@ -28,7 +28,9 @@ const mimeTypes = {
   '.css': 'text/css; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.svg': 'image/svg+xml',
-  '.ico': 'image/x-icon'
+  '.ico': 'image/x-icon',
+  '.png': 'image/png',
+  '.webmanifest': 'application/manifest+json; charset=utf-8'
 };
 
 function json(res, status, payload) {
