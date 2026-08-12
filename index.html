@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f8f8f5" />
+    <title>Nibble — grocery library</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <a class="brand" href="#" aria-label="Nibble home"><span class="brand-mark">n</span><span>nibble</span></a>
+        <nav class="main-nav" aria-label="Library navigation">
+          <button class="nav-tab active" data-view="library">Library <span class="tab-count" id="libraryTabCount">0</span></button>
+          <button class="nav-tab" data-view="trash">Trash <span class="tab-count" id="trashTabCount">0</span></button>
+        </nav>
+        <div class="header-search"><span data-icon="search"></span><input id="librarySearch" placeholder="Search items" aria-label="Search items" /></div>
+        <div class="mode-toggle" role="group" aria-label="Choose view mode">
+          <button class="mode-toggle-option active" id="libraryModeButton" data-mode="library" aria-pressed="true">Cards</button>
+          <button class="mode-toggle-option" id="simpleModeButton" data-mode="simple" aria-pressed="false">Simple list</button>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <div id="libraryMode">
+          <section class="intro-row">
+          <div><p class="eyebrow">Your saved groceries</p><h1 id="pageTitle">Grocery library</h1><p class="intro-copy" id="pageCopy">Items you like to buy, all in one place.</p></div>
+          <button class="text-add-button" id="focusAddButton"><span data-icon="plus"></span> Add an item</button>
+          </section>
+
+          <section class="add-panel" aria-label="Add a grocery item">
+          <div class="add-panel-copy"><p class="eyebrow">Add something</p><h2>Say it, type it, or show it.</h2><p>We’ll clean up the name and find a matching image.</p></div>
+          <div class="add-panel-actions">
+            <button class="capture-button voice-button" id="voiceButton"><span class="capture-icon" data-icon="mic"></span><span><strong>Say it</strong><small>Use your voice</small></span></button>
+            <label class="capture-button photo-button" for="photoInput"><span class="capture-icon" data-icon="camera"></span><span><strong>Show it</strong><small>Photo or screenshot</small></span></label>
+          </div>
+          <form class="add-form" id="addForm">
+            <span class="form-icon" data-icon="search"></span>
+            <input id="itemInput" type="text" autocomplete="off" placeholder="Blueberry muffins from WinCo" aria-label="Item to add" aria-autocomplete="list" aria-controls="searchSuggestions" />
+            <button type="submit" class="form-submit">Add <span data-icon="arrowRight"></span></button>
+          </form>
+          <div class="search-suggestions" id="searchSuggestions" role="listbox" aria-label="Suggested items" hidden></div>
+          <p class="voice-status" id="captureStatus" aria-live="polite"></p>
+          </section>
+
+          <section class="library-section">
+          <div class="section-toolbar">
+            <div><div class="section-title-line"><h2 id="sectionTitle">All items</h2><span class="item-count" id="itemCount">0 items</span></div><p id="sectionCopy">Your grocery library.</p></div>
+            <button class="sort-button" id="sortButton">Recently added <span data-icon="chevronDown"></span></button>
+          </div>
+          <div class="item-grid" id="itemGrid"></div>
+          <div class="empty-state" id="emptyState" hidden><div class="empty-icon" data-icon="search"></div><h3 id="emptyTitle">No items yet</h3><p id="emptyCopy">Add something you like to buy and it will show up here.</p><button class="text-add-button" id="emptyAddButton"><span data-icon="plus"></span> Add an item</button></div>
+          </section>
+        </div>
+
+        <section class="simple-mode" id="simpleMode" aria-labelledby="simpleModeTitle" hidden>
+          <div class="simple-mode-heading">
+            <div><p class="eyebrow">Text only</p><h1 id="simpleModeTitle">Master list</h1><p class="intro-copy">Just a scrollable list. No photos, prices, or calories.</p></div>
+            <span class="simple-mode-badge">Simple mode</span>
+          </div>
+          <section class="simple-entry-panel" aria-label="Add to simple list">
+            <form class="simple-entry-form" id="simpleListForm">
+              <input id="simpleListInput" type="text" autocomplete="off" placeholder="bread, apples, cheese" aria-label="Items to add to simple list" />
+              <button type="submit" class="form-submit">Add <span data-icon="arrowRight"></span></button>
+            </form>
+            <button class="simple-voice-button" id="simpleVoiceButton" type="button"><span data-icon="mic"></span><span><strong>Say a list</strong><small>Say items separated by commas</small></span></button>
+            <p class="voice-status" id="simpleListStatus" aria-live="polite"></p>
+          </section>
+          <section class="simple-list-section">
+            <div class="simple-list-toolbar"><div><div class="section-title-line"><h2>Everything on the list</h2><span class="item-count" id="simpleListCount">0 items</span></div><p>Tap the x to remove an entry.</p></div><button class="simple-clear-button" id="clearSimpleList" type="button">Clear list</button></div>
+            <div class="simple-list-scroll" id="simpleListScroll"><ul class="simple-list" id="simpleList"></ul><div class="simple-list-empty" id="simpleListEmpty"><p>Your simple list is blank.</p><small>Add items by typing or saying them.</small></div></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <input id="photoInput" type="file" accept="image/*" capture="environment" hidden />
+
+    <div class="image-picker-backdrop" id="imagePicker" hidden>
+      <section class="image-picker" role="dialog" aria-modal="true" aria-labelledby="imagePickerTitle">
+        <button class="image-picker-close" id="closeImagePicker" aria-label="Close image chooser"><span data-icon="x"></span></button>
+        <p class="eyebrow">Choose a photo</p>
+        <h2 id="imagePickerTitle">Image results</h2>
+        <p class="image-picker-copy">Tap the image you want to save. Each result links to its source.</p>
+        <div class="image-picker-grid" id="imagePickerGrid"></div>
+        <div class="manual-image-import">
+          <strong>Want to choose directly from Google?</strong>
+          <p>Open Google Images, copy the image link, then paste it below.</p>
+          <a class="google-images-button" id="openGoogleImages" href="https://www.google.com/imghp" target="_blank" rel="noopener noreferrer">Open Google Images <span>↗</span></a>
+          <div class="manual-image-row"><input id="manualImageUrl" type="url" placeholder="https://…" aria-label="Image URL" /><button id="useManualImage" type="button">Use image</button></div>
+          <input id="manualSourceUrl" type="url" placeholder="Source page URL (optional)" aria-label="Source page URL" />
+        </div>
+        <button class="image-picker-skip" id="skipImagePicker" type="button">Skip photo and add item</button>
+      </section>
+    </div>
+
+    <div class="modal-backdrop" id="editModal" hidden>
+      <section class="modal" role="dialog" aria-modal="true" aria-labelledby="editTitle">
+        <button class="modal-close" id="closeEditModal" aria-label="Close"><span data-icon="x"></span></button>
+        <p class="eyebrow">Item details</p>
+        <h2 id="editTitle">Edit item</h2>
+        <form id="editForm" class="edit-form">
+          <label>Name<input id="editName" required /></label>
+          <label>Store<input id="editStore" /></label>
+          <div class="modal-actions"><button type="button" class="secondary-button" id="cancelEdit">Cancel</button><button type="submit" class="primary-button">Save changes</button></div>
+        </form>
+      </section>
+    </div>
+
+    <div class="toast" id="toast" role="status"><span class="toast-icon" data-icon="check"></span><span id="toastMessage"></span></div>
+    <script src="app.js?v=13"></script>
+  </body>
+</html>
