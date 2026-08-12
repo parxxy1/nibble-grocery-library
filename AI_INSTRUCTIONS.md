@@ -241,6 +241,19 @@ Firebase Hosting could work only with Cloud Functions or Cloud Run added for the
 
 The deployed Render URL is still publicly reachable unless an access-control layer is added. “Private app” currently means personal use and private keys, not network isolation. If the user wants actual private access, add a small password gate or another authentication layer before treating the app as private.
 
+### Current deployment
+
+- GitHub repository: `https://github.com/parxxy1/nibble-grocery-library`
+- Branch: `main`
+- Initial deployed commit: `fc64cc0`
+- Render service: `nibble-grocery-library`
+- Live URL: `https://nibble-grocery-library.onrender.com/`
+- Render service type: Node Web Service on the Free plan, managed by `render.yaml`.
+- Current Render health check: `/healthz` returns HTTP 200.
+- Optional provider keys are currently unset in Render, so `geminiConfigured`, `groqConfigured`, `serpApiConfigured`, `googleImagesConfigured`, and `pexelsConfigured` are all `false`. The local/fallback UI still works.
+
+Render is connected to the GitHub repository and can auto-deploy future pushes to `main`. Keep secrets only in Render environment settings; never add `.env` to Git.
+
 ## Data and privacy
 
 The library currently lives in browser `localStorage`, not a server database. This means:

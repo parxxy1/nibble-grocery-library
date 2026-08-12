@@ -14,6 +14,10 @@ Open `http://localhost:4173`—do not double-click `index.html`—so browser mic
 
 The large `Cards / Simple list` toggle switches to a separate text-only master list. Simple-list entries are stored locally under their own `nibble-simple-list` key, so this testing mode does not change the image-based grocery library.
 
+## Live app
+
+The current Render deployment is available at [nibble-grocery-library.onrender.com](https://nibble-grocery-library.onrender.com/). It is connected to the `main` branch of [parxxy1/nibble-grocery-library](https://github.com/parxxy1/nibble-grocery-library). The app is live with optional AI/image API keys unset; add them in Render’s environment settings when you are ready to enable Gemini recognition, Groq transcription, or Google-style image results.
+
 ## Deploy on Render
 
 Render is the simplest fit because one Node web service can serve the frontend and keep the API keys private. Create a Web Service from this folder, use the included `render.yaml`, and add the secret environment variables you want to use in Render. The start command is `npm start`.
