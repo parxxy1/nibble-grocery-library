@@ -6,21 +6,7 @@ services:
     buildCommand: npm install
     startCommand: npm start
     envVars:
-      - key: GEMINI_API_KEY
-        sync: false
       - key: GROQ_API_KEY
         sync: false
-      - key: GEMINI_MODEL
-        value: gemini-2.5-flash-lite
-      - key: GEMINI_USE_SEARCH
-        value: "true"
       - key: GROQ_TRANSCRIPTION_MODEL
         value: whisper-large-v3-turbo
-      - key: SERPAPI_KEY
-        sync: false
-      - key: GOOGLE_SEARCH_API_KEY
-        sync: false
-      - key: GOOGLE_SEARCH_ENGINE_ID
-        sync: false
-      - key: PEXELS_API_KEY
-        sync: false

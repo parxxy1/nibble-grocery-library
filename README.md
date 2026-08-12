@@ -1,8 +1,14 @@
-# Nibble grocery library
+# Nibble
 
-Nibble is a small grocery library that can run as a static site by itself. The optional AI features use the included Node server so API keys never ship to the browser.
+Nibble is a small, mobile-first grocery list for one person. It intentionally uses a plain text list: no cards, product photos, prices, calories, categories, image recognition, or search providers.
 
-For the full product history, architecture, decisions, API map, limitations, and future handoff guidance, see [`AI_INSTRUCTIONS.md`](./AI_INSTRUCTIONS.md). Keep that file updated as the project changes.
+## What it does
+
+- Add one or several grocery items by typing.
+- Add a spoken list from the microphone.
+- Keep the list in the browser on the current device.
+- Remove individual items or clear the whole list.
+- Optionally copy an item to the clipboard and open an Apple Shortcut that appends it to Apple Notes.
 
 ## Run locally
 
@@ -10,20 +16,50 @@ For the full product history, architecture, decisions, API map, limitations, and
 npm start
 ```
 
-Open `http://localhost:4173`—do not double-click `index.html`—so browser microphone permissions and the `/api` routes work. Copy `.env.example` to `.env` and provide `GEMINI_API_KEY` and `GROQ_API_KEY` to enable AI recognition and server-side microphone transcription. `GEMINI_USE_SEARCH=true` lets Gemini use Google Search grounding. Add `SERPAPI_KEY` to use the first Google Images result for each query. The server then falls back to Google Custom Search, Pexels, and Wikimedia. The server loads `.env` locally and reads Render environment variables in production.
+Then open [http://localhost:4173](http://localhost:4173). Do not open `index.html` directly as a `file://` URL; the microphone and server route need localhost or HTTPS.
 
-The large `Cards / Simple list` toggle switches to a separate text-only master list. Simple-list entries are stored locally under their own `nibble-simple-list` key, so this testing mode does not change the image-based grocery library.
+## Voice setup
 
-On iPhone, Simple list also has an optional Apple Notes handoff. Set the exact Notes title and Shortcut name once, then tap `+` beside individual items to run the Shortcut with that item’s text automatically. The Shortcut must use `Shortcut Input` directly; do not add `Ask for Input`. The web app never opens an Apple Notes browser tab; iOS hands the action to Shortcuts.
+The app first asks the browser for microphone permission and uses native browser speech recognition when available. If the browser does not provide speech recognition, it records audio and sends it to the optional server-side Groq Whisper fallback.
 
-## Live app
+To enable the fallback locally, copy `.env.example` to `.env` and set:
 
-The current Render deployment is available at [nibble-grocery-library.onrender.com](https://nibble-grocery-library.onrender.com/). It is connected to the `main` branch of [parxxy1/nibble-grocery-library](https://github.com/parxxy1/nibble-grocery-library). The app is live with optional AI/image API keys unset; add them in Render’s environment settings when you are ready to enable Gemini recognition, Groq transcription, or Google-style image results.
+```text
+GROQ_API_KEY=your_key_here
+```
 
-## Deploy on Render
+The key stays in the Node server and is never placed in browser code. Typed list entry works without any API key.
 
-Render is the simplest fit because one Node web service can serve the frontend and keep the API keys private. Create a Web Service from this folder, use the included `render.yaml`, and add the secret environment variables you want to use in Render. The start command is `npm start`.
+## Apple Notes Shortcut setup
 
-## Firebase
+The browser cannot directly edit Apple Notes. The supported handoff is clipboard plus Shortcut:
 
-Firebase Hosting alone can serve the UI, but it cannot safely store these API keys. Firebase would need a Cloud Function or Cloud Run service for `/api/enrich` and `/api/transcribe`, plus a Hosting rewrite. The included server is therefore ready for Render first; the frontend still works without it using local spelling, OCR, and Wikimedia image search fallbacks.
+1. On the iPhone, open **Shortcuts** and create a shortcut, for example `Nibble Add to Groceries`.
+2. Add **Get Clipboard**.
+3. Add the Apple Notes action that appends the clipboard result to the exact note you want, for example `Groceries`.
+4. Do not add **Ask for Input**. The item is already in the clipboard.
+5. In Nibble, tap the gear, enter the exact Apple Note name and exact Shortcut name, and save.
+6. Tap the dark `+` beside an item. Nibble copies that item name, opens the Shortcut, and the Shortcut appends the clipboard to Notes.
+
+The phone may briefly switch to Shortcuts while it runs. It should not open a Notes tab or ask you to type the item again.
+
+## Deployment
+
+This project is a Node Web Service rather than a pure static site because the optional Groq transcription request needs a server-side secret. Render can run it with the included `render.yaml`:
+
+- Build command: `npm install`
+- Start command: `npm start`
+- Optional environment variable: `GROQ_API_KEY`
+
+The current GitHub repository is `parxxy1/nibble-grocery-library`, and the live Render app is [nibble-grocery-library.onrender.com](https://nibble-grocery-library.onrender.com/).
+
+The app itself is local-first. List data is stored under `nibble-simple-list` in browser `localStorage`; Apple Notes settings are stored under `nibble-apple-notes`. The server does not store the grocery list.
+
+## Files
+
+- `index.html` — the minimal list, add panel, and Apple Notes setup modal.
+- `styles.css` — the sparse mobile list layout.
+- `app.js` — list persistence, microphone handling, clipboard handoff, and Shortcut launch.
+- `server.mjs` — static file server, `/healthz`, and optional `/api/transcribe`.
+- `render.yaml` — Render Web Service configuration.
+- `AI_INSTRUCTIONS.md` — the detailed working handoff for future changes.
