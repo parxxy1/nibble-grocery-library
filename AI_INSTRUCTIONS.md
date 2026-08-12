@@ -42,6 +42,7 @@ The interface is intentionally small and direct:
 - Typed batch entry: commas, semicolons, new lines, and bullet characters become separate list entries.
 - Case-insensitive duplicate prevention, per-item remove buttons, and a clear-list action.
 - A separate “Say a list” microphone action that adds a spoken batch to the simple list using native browser speech recognition or the Groq recording fallback.
+- Optional Apple Notes handoff in Simple list mode. The user can save an exact Apple Note title and Shortcut name once; each item then has a `+` action that runs `shortcuts://run-shortcut` with that item as text input. This is stored separately under `nibble-apple-notes`.
 
 Prices and calories were explicitly removed. Do not reintroduce them unless the user asks for them.
 
@@ -83,6 +84,7 @@ The client-side application logic:
 - Local OCR/classification fallback using Tesseract.js, TensorFlow.js, and MobileNet.
 - Image result picker and manual Google Images URL import.
 - Simple list persistence, batch splitting, deduplication, rendering, and voice-list entry.
+- Apple Notes setup persistence and per-item Shortcut URL handoff.
 
 Important client API endpoints:
 
@@ -222,6 +224,10 @@ The app starts native `SpeechRecognition`/`webkitSpeechRecognition` directly fro
 
 Simple list mode uses the same permission-aware voice flow through its “Say a list” button. It expects the spoken items to be separated by commas or clear pauses; the resulting transcript is split into separate bullets instead of going through image search.
 
+### Apple Notes handoff
+
+The browser cannot enumerate or directly edit Apple Notes. On iPhone, the Simple list setup stores the user’s chosen note title and the name of a Shortcut that appends incoming text to that note. Each `+` button runs `shortcuts://run-shortcut?name=...&input=text&text=...`; it does not open an Apple Notes web tab. The user must create the matching Shortcut once in the iPhone Shortcuts app, and iOS may briefly switch to Shortcuts to run it.
+
 If no Groq key is configured, typed entry and photo entry should continue to work. Show a useful error for voice rather than pretending the microphone worked.
 
 ## Hosting decision
@@ -277,6 +283,7 @@ Uploaded images may be sent to Gemini when the Gemini key is configured. Be expl
 - **Local storage:** enough for a personal prototype and avoids adding a database/auth system prematurely.
 - **No price/calorie fields:** explicitly removed at the user’s request.
 - **Separate Simple list mode:** supports quickly dictating a plain master list without forcing every entry through product recognition or image selection.
+- **Apple Notes via Shortcuts:** uses Apple’s supported URL scheme for a lightweight phone handoff instead of pretending a web app can access the private Notes database.
 - **Minimal UI:** avoids unsolicited categories, notifications, greetings, dashboards, and other features.
 
 ## Known limitations
@@ -292,6 +299,7 @@ Uploaded images may be sent to Gemini when the Gemini key is configured. Be expl
 - Some browsers expose a microphone permission but do not return Web Speech results; the UI now reports a timeout or browser speech-service error instead of leaving the button active indefinitely.
 - When the recorder fallback is active, the voice button changes to “Stop & transcribe” so the user knows how to finish the recording.
 - Simple-list voice splitting is intentionally lightweight; it does not infer item boundaries from general prose or generate SVG symbols.
+- Apple Notes integration depends on the user-created Shortcut name and target note; a browser cannot discover Notes or create the Shortcut automatically.
 - The current local browser may contain test items in its `nibble-state` local storage. Do not delete user data casually.
 
 ## Verification expectations

@@ -135,6 +135,14 @@ h1 { margin: 9px 0 5px; font-family: var(--display); font-size: clamp(31px, 4vw,
 .simple-voice-button strong { font-size: 11px; }
 .simple-voice-button small { margin-top: 3px; color: #91a098; font-size: 9px; }
 .simple-entry-panel .voice-status { grid-column: 1 / -1; margin: -3px 0 -1px; }
+.apple-notes-panel { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-top: 13px; padding: 16px 18px; background: #f7faf6; border: 1px solid #e1ebe0; border-radius: 8px; }
+.apple-notes-panel h2 { margin: 3px 0 0; font-family: var(--display); font-size: 18px; font-weight: 600; letter-spacing: -.2px; }
+.apple-notes-panel p:not(.eyebrow) { margin: 5px 0 0; color: #87978e; font-size: 10px; line-height: 1.45; }
+.apple-notes-panel-actions { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
+.apple-notes-state { color: #93a098; font-family: var(--mono); font-size: 8px; text-transform: uppercase; letter-spacing: .3px; white-space: nowrap; }
+.apple-notes-state.connected { color: var(--green); }
+.simple-notes-button { padding: 8px 10px; color: var(--green); background: #fff; border: 1px solid #cbdccc; border-radius: 5px; font-size: 10px; font-weight: 600; white-space: nowrap; }
+.simple-notes-button:hover { background: var(--soft-green); border-color: #a9c5ad; }
 .simple-list-section { margin-top: 43px; }
 .simple-list-toolbar { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
 .simple-list-toolbar h2 { margin: 0; font-family: var(--display); font-size: 25px; font-weight: 600; letter-spacing: -.5px; }
@@ -146,12 +154,21 @@ h1 { margin: 9px 0 5px; font-family: var(--display); font-size: clamp(31px, 4vw,
 .simple-list li { display: flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 42px; padding: 7px 7px 7px 3px; border-bottom: 1px solid #e9eee8; font-size: 16px; line-height: 1.35; }
 .simple-list li::marker { color: var(--coral); font-size: 13px; }
 .simple-list li span { overflow-wrap: anywhere; }
-.simple-remove { flex: 0 0 auto; width: 24px; height: 24px; color: #a5b1aa; background: transparent; border-radius: 50%; font-size: 19px; line-height: 1; }
+.simple-item-actions { display: flex; align-items: center; gap: 3px; flex: 0 0 auto; }
+.simple-note-add, .simple-remove { display: grid; place-items: center; width: 25px; height: 25px; border-radius: 50%; font-size: 17px; line-height: 1; }
+.simple-note-add { color: var(--green); background: #e7f1e7; font-weight: 500; }
+.simple-note-add:hover { color: #fff; background: var(--green); }
+.simple-remove { color: #a5b1aa; background: transparent; font-size: 19px; }
 .simple-remove:hover { color: #bd604c; background: #f8e9e4; }
 .simple-list-empty { padding: 76px 20px; color: #87978e; text-align: center; }
 .simple-list-empty[hidden] { display: none; }
 .simple-list-empty p { margin: 0 0 5px; font-family: var(--display); font-size: 22px; }
 .simple-list-empty small { font-size: 11px; }
+.apple-notes-modal-copy { margin: 0 0 18px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.apple-notes-steps { margin: 3px 0 0; padding: 10px 11px; color: #73847a; background: #f3f7f2; border-radius: 5px; font-size: 10px; line-height: 1.45; }
+.apple-notes-open-shortcuts { display: inline-flex; align-items: center; gap: 5px; width: fit-content; color: var(--green); font-size: 10px; font-weight: 600; text-decoration: none; }
+.apple-notes-open-shortcuts:hover { color: var(--coral); }
+.apple-notes-open-shortcuts span { font-size: 13px; }
 
 .image-picker-backdrop { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 18px; background: rgba(23, 62, 58, .38); backdrop-filter: blur(4px); }
 .image-picker-backdrop[hidden] { display: none; }
@@ -227,6 +244,8 @@ h1 { margin: 9px 0 5px; font-family: var(--display); font-size: clamp(31px, 4vw,
   .simple-mode-heading { align-items: flex-start; flex-direction: column; }
   .simple-mode-badge { align-self: flex-start; }
   .simple-list-scroll { max-height: 60vh; padding-left: 20px; }
+  .apple-notes-panel { align-items: flex-start; flex-direction: column; }
+  .apple-notes-panel-actions { width: 100%; justify-content: space-between; }
 }
 @media (max-width: 430px) {
   .app-header { flex-wrap: wrap; height: auto; padding-top: 14px; padding-bottom: 10px; }

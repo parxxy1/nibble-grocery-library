@@ -14,6 +14,8 @@ Open `http://localhost:4173`—do not double-click `index.html`—so browser mic
 
 The large `Cards / Simple list` toggle switches to a separate text-only master list. Simple-list entries are stored locally under their own `nibble-simple-list` key, so this testing mode does not change the image-based grocery library.
 
+On iPhone, Simple list also has an optional Apple Notes handoff. Set the exact Notes title and Shortcut name once, then tap `+` beside individual items to run the Shortcut with that item’s text. The web app never opens an Apple Notes browser tab; iOS hands the action to Shortcuts.
+
 ## Live app
 
 The current Render deployment is available at [nibble-grocery-library.onrender.com](https://nibble-grocery-library.onrender.com/). It is connected to the `main` branch of [parxxy1/nibble-grocery-library](https://github.com/parxxy1/nibble-grocery-library). The app is live with optional AI/image API keys unset; add them in Render’s environment settings when you are ready to enable Gemini recognition, Groq transcription, or Google-style image results.

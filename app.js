@@ -56,6 +56,7 @@ let imagePickerResults = [];
 let imagePickerQuery = '';
 let simpleModeEnabled = false;
 let simpleItems = [];
+let appleNotesConfig = null;
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -97,6 +98,23 @@ function saveSimpleList() {
   try { localStorage.setItem('nibble-simple-list', JSON.stringify(simpleItems)); } catch { /* keep the list usable if storage is unavailable */ }
 }
 
+function loadAppleNotesConfig() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('nibble-apple-notes') || 'null');
+    if (!saved || typeof saved !== 'object') return null;
+    const noteName = String(saved.noteName || '').trim();
+    const shortcutName = String(saved.shortcutName || '').trim();
+    return noteName && shortcutName ? { noteName, shortcutName } : null;
+  } catch { return null; }
+}
+
+function saveAppleNotesConfig() {
+  try {
+    if (appleNotesConfig) localStorage.setItem('nibble-apple-notes', JSON.stringify(appleNotesConfig));
+    else localStorage.removeItem('nibble-apple-notes');
+  } catch { /* keep the Notes handoff usable if storage is unavailable */ }
+}
+
 function renderIcons() {
   $$('[data-icon]').forEach((element) => { element.innerHTML = ICON[element.dataset.icon] || ''; });
 }
@@ -117,9 +135,50 @@ function renderSimpleList() {
   const list = $('#simpleList');
   const empty = $('#simpleListEmpty');
   if (!list || !empty) return;
-  list.innerHTML = simpleItems.map((entry, index) => `<li><span>${escapeHtml(entry)}</span><button class="simple-remove" type="button" data-simple-index="${index}" aria-label="Remove ${escapeHtml(entry)}">×</button></li>`).join('');
+  list.innerHTML = simpleItems.map((entry, index) => `<li><span>${escapeHtml(entry)}</span><div class="simple-item-actions"><button class="simple-note-add" type="button" data-note-index="${index}" aria-label="Add ${escapeHtml(entry)} to Apple Notes">+</button><button class="simple-remove" type="button" data-simple-index="${index}" aria-label="Remove ${escapeHtml(entry)}">×</button></div></li>`).join('');
   empty.hidden = simpleItems.length > 0;
   $('#simpleListCount').textContent = `${simpleItems.length} ${simpleItems.length === 1 ? 'item' : 'items'}`;
+}
+
+function renderAppleNotesSetup() {
+  const state = $('#appleNotesState');
+  const description = $('#appleNotesDescription');
+  const removeButton = $('#appleNotesRemoveButton');
+  const setupButton = $('#appleNotesSetupButton');
+  if (!state || !description || !removeButton || !setupButton) return;
+  const connected = Boolean(appleNotesConfig);
+  state.textContent = connected ? `Note: ${appleNotesConfig.noteName}` : 'Not set up';
+  state.classList.toggle('connected', connected);
+  removeButton.hidden = !connected;
+  description.textContent = connected
+    ? `Tap + beside an item to send it to “${appleNotesConfig.noteName}” through Shortcuts.`
+    : 'Set up a Shortcut once, then tap + beside any item to send it to your chosen note.';
+  setupButton.textContent = connected ? 'Change' : 'Set up';
+}
+
+function openAppleNotesSetup() {
+  $('#appleNotesName').value = appleNotesConfig?.noteName || '';
+  $('#appleNotesShortcut').value = appleNotesConfig?.shortcutName || '';
+  $('#appleNotesSetup').hidden = false;
+  setTimeout(() => $('#appleNotesName').focus(), 30);
+}
+
+function closeAppleNotesSetup() {
+  $('#appleNotesSetup').hidden = true;
+}
+
+function addSimpleItemToAppleNotes(index) {
+  const entry = simpleItems[index];
+  if (!entry) return;
+  if (!appleNotesConfig) {
+    openAppleNotesSetup();
+    $('#simpleListStatus').textContent = 'Choose your note and save the setup, then tap + again.';
+    return;
+  }
+  const shortcutUrl = `shortcuts://run-shortcut?name=${encodeURIComponent(appleNotesConfig.shortcutName)}&input=text&text=${encodeURIComponent(entry)}`;
+  $('#simpleListStatus').textContent = `Sending “${entry}” to “${appleNotesConfig.noteName}”…`;
+  showToast(`Sending ${entry} to Apple Notes`);
+  window.location.href = shortcutUrl;
 }
 
 function addSimpleListEntries(value) {
@@ -988,6 +1047,11 @@ async function submitTypedItem() {
 $('#addForm').addEventListener('submit', (event) => { event.preventDefault(); void submitTypedItem(); });
 $('#simpleListForm').addEventListener('submit', (event) => { event.preventDefault(); addSimpleListEntries($('#simpleListInput').value); });
 $('#simpleList').addEventListener('click', (event) => {
+  const noteButton = event.target.closest('.simple-note-add');
+  if (noteButton) {
+    addSimpleItemToAppleNotes(Number(noteButton.dataset.noteIndex));
+    return;
+  }
   const removeButton = event.target.closest('.simple-remove');
   if (!removeButton) return;
   simpleItems.splice(Number(removeButton.dataset.simpleIndex), 1);
@@ -1000,6 +1064,30 @@ $('#clearSimpleList').addEventListener('click', () => {
   saveSimpleList();
   renderSimpleList();
   $('#simpleListStatus').textContent = 'List cleared.';
+});
+$('#appleNotesSetupButton').addEventListener('click', openAppleNotesSetup);
+$('#appleNotesRemoveButton').addEventListener('click', () => {
+  if (!appleNotesConfig) return;
+  appleNotesConfig = null;
+  saveAppleNotesConfig();
+  renderAppleNotesSetup();
+  $('#simpleListStatus').textContent = 'Apple Notes setup removed.';
+  showToast('Apple Notes setup removed');
+});
+$('#closeAppleNotesSetup').addEventListener('click', closeAppleNotesSetup);
+$('#cancelAppleNotesSetup').addEventListener('click', closeAppleNotesSetup);
+$('#appleNotesSetup').addEventListener('click', (event) => { if (event.target === $('#appleNotesSetup')) closeAppleNotesSetup(); });
+$('#appleNotesForm').addEventListener('submit', (event) => {
+  event.preventDefault();
+  const noteName = $('#appleNotesName').value.trim();
+  const shortcutName = $('#appleNotesShortcut').value.trim();
+  if (!noteName || !shortcutName) return;
+  appleNotesConfig = { noteName, shortcutName };
+  saveAppleNotesConfig();
+  renderAppleNotesSetup();
+  closeAppleNotesSetup();
+  $('#simpleListStatus').textContent = `Apple Notes is ready for “${noteName}”. Tap + beside an item to send it.`;
+  showToast('Apple Notes setup saved');
 });
 $('#simpleVoiceButton').addEventListener('click', startSimpleVoiceCapture);
 $$('.mode-toggle-option').forEach((button) => button.addEventListener('click', () => setAppMode(button.dataset.mode)));
@@ -1068,7 +1156,9 @@ const initialState = loadState();
 items = initialState.items.map(normalizeItem);
 trash = initialState.trash.map(normalizeItem);
 simpleItems = loadSimpleList();
+appleNotesConfig = loadAppleNotesConfig();
 saveState();
 renderIcons();
 renderItems();
 renderSimpleList();
+renderAppleNotesSetup();
