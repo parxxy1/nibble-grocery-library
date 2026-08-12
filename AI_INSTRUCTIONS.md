@@ -43,6 +43,7 @@ The interface is intentionally small and direct:
 - Case-insensitive duplicate prevention, per-item remove buttons, and a clear-list action.
 - A separate “Say a list” microphone action that adds a spoken batch to the simple list using native browser speech recognition or the Groq recording fallback.
 - Optional Apple Notes handoff in Simple list mode. The user can save an exact Apple Note title and Shortcut name once; each item then has a `+` action that runs `shortcuts://run-shortcut` with that item as text input. This is stored separately under `nibble-apple-notes`.
+- Simple list mode is intentionally styled as a sparse mobile screen: a plain `nibble` wordmark, settings/archive controls, large unbulleted text rows, per-item Notes `+` actions, and one large floating `+` for opening the add/voice panel.
 
 Prices and calories were explicitly removed. Do not reintroduce them unless the user asks for them.
 
@@ -68,6 +69,8 @@ The page structure and accessible labels. It contains:
 All visual styling. The app is desktop-compatible but should be designed mobile-first. At narrow widths, the image picker becomes a bottom sheet and the gallery becomes a two-column grid.
 
 Keep the visual language quiet and practical: pale background, dark green text, coral accent, compact typography, and restrained controls.
+
+Simple list is the exception: it follows the user’s supplied reference with a white mobile canvas, black wordmark/icons, large plain text, and a dark gray floating add button. Keep the add/voice form behind the floating `+` so the list remains uncluttered.
 
 ### `app.js`
 

@@ -2,6 +2,8 @@ const ICON = {
   search: '<svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.6"/><path d="m16 16 4.5 4.5"/></svg>',
   plus: '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
   mic: '<svg viewBox="0 0 24 24"><rect x="8.5" y="3" width="7" height="12" rx="3.5"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"/></svg>',
+  settings: '<svg viewBox="0 0 24 24"><path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6Z"/><path d="m19.4 13.5 1.3 1-.1 1.3-1.6 1.6-1.3-.1-1-1.3a7.6 7.6 0 0 1-1.6.7l-.2 1.6-1 .9h-2.3l-1-.9-.2-1.6a7.6 7.6 0 0 1-1.6-.7l-1 1.3-1.3.1-1.6-1.6-.1-1.3 1.3-1a7.7 7.7 0 0 1-.1-1.5c0-.5 0-1 .1-1.5l-1.3-1 .1-1.3 1.6-1.6 1.3.1 1 1.3a7.6 7.6 0 0 1 1.6-.7l.2-1.6 1-.9h2.3l1 .9.2 1.6a7.6 7.6 0 0 1 1.6.7l1-1.3 1.3-.1 1.6 1.6.1 1.3-1.3 1c.1.5.1 1 .1 1.5s0 1-.1 1.5Z"/></svg>',
+  archive: '<svg viewBox="0 0 24 24"><path d="M4 7.5h16v12H4zM3 4.5h18v3H3zM9 11.5h6"/></svg>',
   camera: '<svg viewBox="0 0 24 24"><path d="M4 7h3l1.4-2h7.2L17 7h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13" r="3.3"/></svg>',
   arrowRight: '<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
   chevronDown: '<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>',
@@ -165,6 +167,15 @@ function openAppleNotesSetup() {
 
 function closeAppleNotesSetup() {
   $('#appleNotesSetup').hidden = true;
+}
+
+function openSimpleEntryPanel() {
+  $('#simpleEntryPanel').hidden = false;
+  setTimeout(() => $('#simpleListInput').focus(), 30);
+}
+
+function closeSimpleEntryPanel() {
+  $('#simpleEntryPanel').hidden = true;
 }
 
 function addSimpleItemToAppleNotes(index) {
@@ -1088,6 +1099,15 @@ $('#appleNotesForm').addEventListener('submit', (event) => {
   closeAppleNotesSetup();
   $('#simpleListStatus').textContent = `Apple Notes is ready for “${noteName}”. Tap + beside an item to send it.`;
   showToast('Apple Notes setup saved');
+});
+$('#simpleAddButton').addEventListener('click', openSimpleEntryPanel);
+$('#closeSimpleEntry').addEventListener('click', closeSimpleEntryPanel);
+$('#simpleSettingsButton').addEventListener('click', openAppleNotesSetup);
+$('#simpleLibraryButton').addEventListener('click', () => {
+  closeSimpleEntryPanel();
+  currentView = 'library';
+  setAppMode('library');
+  renderItems();
 });
 $('#simpleVoiceButton').addEventListener('click', startSimpleVoiceCapture);
 $$('.mode-toggle-option').forEach((button) => button.addEventListener('click', () => setAppMode(button.dataset.mode)));

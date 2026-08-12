@@ -40,6 +40,7 @@ svg { display: block; width: 17px; height: 17px; fill: none; stroke: currentColo
 .mode-toggle-option:hover { color: var(--ink); }
 .mode-toggle-option.active { color: #fff; background: var(--ink); box-shadow: 0 2px 5px rgba(23,62,58,.13); }
 .simple-active .main-nav, .simple-active .header-search { display: none; }
+.simple-header-tools { display: none; }
 
 .main-content { width: min(1080px, calc(100% - 44px)); margin: 0 auto; padding: 51px 0 75px; }
 .intro-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; }
@@ -164,6 +165,10 @@ h1 { margin: 9px 0 5px; font-family: var(--display); font-size: clamp(31px, 4vw,
 .simple-list-empty[hidden] { display: none; }
 .simple-list-empty p { margin: 0 0 5px; font-family: var(--display); font-size: 22px; }
 .simple-list-empty small { font-size: 11px; }
+.simple-add-button { display: none; }
+.simple-entry-panel[hidden] { display: none; }
+.simple-entry-close { position: absolute; top: 13px; right: 13px; display: grid; place-items: center; width: 25px; height: 25px; color: #8b9a92; background: #f1f4f0; border-radius: 50%; }
+.simple-entry-close svg { width: 13px; height: 13px; }
 .apple-notes-modal-copy { margin: 0 0 18px; color: var(--muted); font-size: 11px; line-height: 1.5; }
 .apple-notes-steps { margin: 3px 0 0; padding: 10px 11px; color: #73847a; background: #f3f7f2; border-radius: 5px; font-size: 10px; line-height: 1.45; }
 .apple-notes-open-shortcuts { display: inline-flex; align-items: center; gap: 5px; width: fit-content; color: var(--green); font-size: 10px; font-weight: 600; text-decoration: none; }
@@ -224,6 +229,38 @@ h1 { margin: 9px 0 5px; font-family: var(--display); font-size: clamp(31px, 4vw,
 .toast-icon { display: grid; place-items: center; width: 18px; height: 18px; color: var(--ink); background: #9ed4ae; border-radius: 50%; }
 .toast-icon svg { width: 11px; height: 11px; }
 
+/* Simple list is intentionally a separate, quiet mobile screen. */
+.simple-active { background: #f0f0f0; }
+.simple-active .app-shell { width: min(100%, 720px); min-height: 100vh; margin: 0 auto; background: #fff; }
+.simple-active .app-header { height: 126px; padding: 39px 80px 0; background: #fff; border-bottom: 0; }
+.simple-active .brand { gap: 0; color: #111; font-family: var(--sans); font-size: 34px; font-weight: 400; letter-spacing: -2.7px; }
+.simple-active .brand-mark { display: none; }
+.simple-active .mode-toggle { display: none; }
+.simple-active .simple-header-tools { display: flex; align-items: center; gap: 25px; margin-left: auto; }
+.simple-active .simple-header-tool { display: grid; place-items: center; width: 42px; height: 42px; color: #050505; background: transparent; }
+.simple-active .simple-header-tool svg { width: 43px; height: 43px; stroke-width: 1.8; }
+.simple-active .main-content { width: 100%; min-height: calc(100vh - 126px); padding: 0 90px 130px; }
+.simple-active .simple-mode { position: relative; min-height: calc(100vh - 126px); }
+.simple-active .simple-mode-heading { display: none; }
+.simple-active .simple-entry-panel { position: fixed; right: auto; bottom: 28px; left: 50%; z-index: 25; width: min(calc(100% - 30px), 460px); margin: 0; padding: 25px 22px 21px; background: #fff; border: 1px solid #dedede; border-radius: 12px; box-shadow: 0 18px 55px rgba(0,0,0,.18); transform: translateX(-50%); }
+.simple-active .apple-notes-panel, .simple-active .simple-list-toolbar { display: none; }
+.simple-active .simple-list-section { margin: 0; }
+.simple-active .simple-list-scroll { max-height: none; overflow: visible; padding: 0; background: transparent; border-bottom: 0; }
+.simple-active .simple-list { padding: 0; list-style: none; }
+.simple-active .simple-list li { min-height: 0; margin: 0 0 18px; padding: 0; border-bottom: 0; font-size: clamp(22px, 4vw, 29px); font-weight: 400; line-height: 1.2; }
+.simple-active .simple-list li::marker { content: none; }
+.simple-active .simple-list li span { padding-top: 4px; }
+.simple-active .simple-item-actions { gap: 7px; }
+.simple-active .simple-note-add { width: 45px; height: 45px; color: #eee; background: #444; border-radius: 50%; font-size: 34px; font-weight: 400; }
+.simple-active .simple-note-add:hover { background: #222; }
+.simple-active .simple-remove { width: 22px; height: 22px; color: #aaa; font-size: 17px; opacity: .6; }
+.simple-active .simple-list-empty { padding: 75px 0; color: #111; text-align: left; }
+.simple-active .simple-list-empty p { margin: 0 0 6px; font-family: var(--sans); font-size: 24px; }
+.simple-active .simple-list-empty small { color: #888; font-size: 11px; }
+.simple-active .simple-add-button { position: fixed; right: auto; bottom: 42px; left: 50%; z-index: 12; display: grid; place-items: center; width: 108px; height: 108px; color: #e7e7e7; background: #444; border-radius: 50%; transform: translateX(-50%); }
+.simple-active .simple-add-button svg { width: 70px; height: 70px; stroke-width: 1.8; }
+.simple-active .simple-add-button:hover { background: #222; }
+
 @media (max-width: 900px) {
   .item-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .add-panel { grid-template-columns: 1fr; gap: 19px; }
@@ -246,6 +283,17 @@ h1 { margin: 9px 0 5px; font-family: var(--display); font-size: clamp(31px, 4vw,
   .simple-list-scroll { max-height: 60vh; padding-left: 20px; }
   .apple-notes-panel { align-items: flex-start; flex-direction: column; }
   .apple-notes-panel-actions { width: 100%; justify-content: space-between; }
+  .simple-active .app-header { height: 106px; padding: 27px 32px 0; }
+  .simple-active .brand { font-size: 30px; }
+  .simple-active .simple-header-tools { gap: 12px; }
+  .simple-active .simple-header-tool { width: 38px; height: 38px; }
+  .simple-active .simple-header-tool svg { width: 35px; height: 35px; }
+  .simple-active .main-content { min-height: calc(100vh - 106px); padding: 63px 34px 120px; }
+  .simple-active .simple-mode { min-height: calc(100vh - 106px); }
+  .simple-active .simple-list li { margin-bottom: 20px; font-size: 25px; }
+  .simple-active .simple-note-add { width: 40px; height: 40px; font-size: 30px; }
+  .simple-active .simple-add-button { bottom: 28px; width: 88px; height: 88px; }
+  .simple-active .simple-add-button svg { width: 58px; height: 58px; }
 }
 @media (max-width: 430px) {
   .app-header { flex-wrap: wrap; height: auto; padding-top: 14px; padding-bottom: 10px; }
