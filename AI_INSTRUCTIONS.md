@@ -226,7 +226,7 @@ Simple list mode uses the same permission-aware voice flow through its “Say a 
 
 ### Apple Notes handoff
 
-The browser cannot enumerate or directly edit Apple Notes. On iPhone, the Simple list setup stores the user’s chosen note title and the name of a Shortcut that appends incoming text to that note. Each `+` button runs `shortcuts://run-shortcut?name=...&input=text&text=...`; it does not open an Apple Notes web tab. The user must create the matching Shortcut once in the iPhone Shortcuts app, and iOS may briefly switch to Shortcuts to run it.
+The browser cannot enumerate or directly edit Apple Notes. On iPhone, the Simple list setup stores the user’s chosen note title and the name of a Shortcut that appends incoming text to that note. Each `+` button runs `shortcuts://run-shortcut?name=...&input=text&text=...`; it does not open an Apple Notes web tab. The matching Shortcut must use `Shortcut Input` directly in its Notes action; it must not contain `Ask for Input`, or iOS will prompt the user again. The user must create the matching Shortcut once in the iPhone Shortcuts app, and iOS may briefly switch to Shortcuts to run it.
 
 If no Groq key is configured, typed entry and photo entry should continue to work. Show a useful error for voice rather than pretending the microphone worked.
 

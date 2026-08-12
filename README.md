@@ -14,7 +14,7 @@ Open `http://localhost:4173`—do not double-click `index.html`—so browser mic
 
 The large `Cards / Simple list` toggle switches to a separate text-only master list. Simple-list entries are stored locally under their own `nibble-simple-list` key, so this testing mode does not change the image-based grocery library.
 
-On iPhone, Simple list also has an optional Apple Notes handoff. Set the exact Notes title and Shortcut name once, then tap `+` beside individual items to run the Shortcut with that item’s text. The web app never opens an Apple Notes browser tab; iOS hands the action to Shortcuts.
+On iPhone, Simple list also has an optional Apple Notes handoff. Set the exact Notes title and Shortcut name once, then tap `+` beside individual items to run the Shortcut with that item’s text automatically. The Shortcut must use `Shortcut Input` directly; do not add `Ask for Input`. The web app never opens an Apple Notes browser tab; iOS hands the action to Shortcuts.
 
 ## Live app
 

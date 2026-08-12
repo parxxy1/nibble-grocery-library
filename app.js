@@ -151,7 +151,7 @@ function renderAppleNotesSetup() {
   state.classList.toggle('connected', connected);
   removeButton.hidden = !connected;
   description.textContent = connected
-    ? `Tap + beside an item to send it to “${appleNotesConfig.noteName}” through Shortcuts.`
+    ? `Tap + beside an item to send it automatically to “${appleNotesConfig.noteName}” through Shortcuts.`
     : 'Set up a Shortcut once, then tap + beside any item to send it to your chosen note.';
   setupButton.textContent = connected ? 'Change' : 'Set up';
 }

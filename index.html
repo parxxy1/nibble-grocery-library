@@ -128,11 +128,12 @@
         <button class="modal-close" id="closeAppleNotesSetup" aria-label="Close Apple Notes setup"><span data-icon="x"></span></button>
         <p class="eyebrow">One-time setup</p>
         <h2 id="appleNotesSetupTitle">Choose your Apple Note</h2>
-        <p class="apple-notes-modal-copy">Nibble cannot browse your Notes directly. Enter the exact note title and the name of the iPhone Shortcut that appends text to it.</p>
+        <p class="apple-notes-modal-copy">Nibble cannot browse your Notes directly. Enter the exact note title and the name of the iPhone Shortcut that appends incoming text to it.</p>
         <form id="appleNotesForm" class="edit-form">
           <label>Apple Note name<input id="appleNotesName" required placeholder="Groceries" /></label>
-          <label>Shortcut name<input id="appleNotesShortcut" required placeholder="Nibble Add to Groceries" /></label>
-          <p class="apple-notes-steps">In Shortcuts, make that shortcut accept text and append it to the note above. Then return here and tap + on any grocery item.</p>
+          <label>Shortcut name (exact match)<input id="appleNotesShortcut" required placeholder="Nibble Add to Groceries" /></label>
+          <p class="apple-notes-steps"><strong>Important:</strong> In Shortcuts, use the incoming <strong>Shortcut Input</strong> directly in the Notes action. Do not add <strong>Ask for Input</strong>—Nibble sends the item automatically when you tap +.</p>
+          <p class="apple-notes-steps">Set the Notes action to append that Shortcut Input to the note above, then return here and tap + on any grocery item.</p>
           <a class="apple-notes-open-shortcuts" href="shortcuts://">Open the Shortcuts app <span>↗</span></a>
           <div class="modal-actions"><button type="button" class="secondary-button" id="cancelAppleNotesSetup">Cancel</button><button type="submit" class="primary-button">Save Notes setup</button></div>
         </form>
@@ -140,6 +141,6 @@
     </div>
 
     <div class="toast" id="toast" role="status"><span class="toast-icon" data-icon="check"></span><span id="toastMessage"></span></div>
-    <script src="app.js?v=14"></script>
+    <script src="app.js?v=15"></script>
   </body>
 </html>
